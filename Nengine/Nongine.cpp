@@ -3,6 +3,10 @@
 Nongine::Nongine(int width, int height, string title)
 {
 	running = init(width, height, title);
+	if (!running) {
+		SDL_Delay(10000);
+		return;
+	}
 	gTexture = loadImage("textures/circle.bmp");
 }
 
@@ -36,7 +40,18 @@ bool Nongine::init(int width, int height, string title)
 		}
 		else
 		{
-			gScreenSurface = SDL_GetWindowSurface(gWindow);
+			int imgFlags = IMG_INIT_PNG;
+			if (!(IMG_Init(imgFlags) & imgFlags))
+			{
+				printf("SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError());
+				success = false;
+				SDL_Delay(5000);
+			}
+			else
+			{
+				//Get window surface
+				gScreenSurface = SDL_GetWindowSurface(gWindow);
+			}
 		}
 	}
 	return success;
@@ -45,7 +60,7 @@ bool Nongine::init(int width, int height, string title)
 SDL_Surface* Nongine::loadImage(string pathName)
 {
 	SDL_Surface *optimized = NULL;
-	SDL_Surface *gLoadSurface = SDL_LoadBMP(pathName.c_str());
+	SDL_Surface *gLoadSurface = IMG_Load(pathName.c_str());
 	if (gLoadSurface == NULL)
 	{
 		printf("Unable to load image %s! SDL Error: %s\n", pathName.c_str(), SDL_GetError());
