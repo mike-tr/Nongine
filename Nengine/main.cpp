@@ -10,9 +10,8 @@ const int SCREEN_HEIGHT = 480;
 
 int main(int argc, char* args[])
 {
-	char title[] = "dsadas";
-	char *t = title;
-	Nongine *engine = new Nongine(SCREEN_WIDTH, SCREEN_HEIGHT, t);
+
+	Nongine *engine = new Nongine(SCREEN_WIDTH, SCREEN_HEIGHT, "title");
 	engine->loop();
 	return 0;
 }

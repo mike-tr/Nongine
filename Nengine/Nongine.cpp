@@ -1,25 +1,23 @@
 #include "Nongine.h"
 
-Nongine::Nongine(int width, int height, char *title)
+Nongine::Nongine(int width, int height, string title)
 {
 	running = init(width, height, title);
-	loadImage("textures/circle.bmp");
-	SDL_BlitSurface(gLoadSurface, NULL, gScreenSurface, NULL);
-	SDL_UpdateWindowSurface(gWindows);
+	gTexture = loadImage("textures/circle.bmp");
 }
 
 Nongine::~Nongine()
 {
-	SDL_FreeSurface(gLoadSurface);
-	gLoadSurface = NULL;
-	SDL_DestroyWindow(gWindows);
+	SDL_FreeSurface(gTexture);
+	gTexture = NULL;
+	SDL_DestroyWindow(gWindow);
 	SDL_Quit();
 }
 
-bool Nongine::init(int width, int height, char * title)
+bool Nongine::init(int width, int height, string title)
 {
 	bool success = true;
-	gWindows = NULL;
+	gWindow = NULL;
 	gScreenSurface = NULL;
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
@@ -28,30 +26,40 @@ bool Nongine::init(int width, int height, char * title)
 	}
 	else
 	{
-		gWindows = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_SHOWN);
-		if (gWindows == NULL)
+		gWindow = SDL_CreateWindow(title.c_str(), 
+			SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 
+			width, height, SDL_WINDOW_SHOWN);
+		if (gWindow == NULL)
 		{
 			printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
 			success = false;
 		}
 		else
 		{
-			gScreenSurface = SDL_GetWindowSurface(gWindows);
+			gScreenSurface = SDL_GetWindowSurface(gWindow);
 		}
 	}
 	return success;
 }
 
-bool Nongine::loadImage(string pathName)
+SDL_Surface* Nongine::loadImage(string pathName)
 {
-	bool success = true;
-	gLoadSurface = SDL_LoadBMP("textures/circle.bmp");
+	SDL_Surface *optimized = NULL;
+	SDL_Surface *gLoadSurface = SDL_LoadBMP(pathName.c_str());
 	if (gLoadSurface == NULL)
 	{
-		printf("Unable to load image %s! SDL Error: %s\n", "02_getting_an_image_on_the_screen/hello_world.bmp", SDL_GetError());
-		success = false;
+		printf("Unable to load image %s! SDL Error: %s\n", pathName.c_str(), SDL_GetError());
+		return NULL;
 	}
-	return success;
+	else {
+		optimized = SDL_ConvertSurface(gLoadSurface, gScreenSurface->format, 0);
+		if (optimized == NULL) {
+			printf("Unable to optimize image %s! SDL Error: %s\n", pathName.c_str(), SDL_GetError());
+			return NULL;
+		}
+		SDL_FreeSurface(gLoadSurface);
+	}
+	return optimized;
 }
 
 void Nongine::loop()
@@ -67,5 +75,15 @@ void Nongine::inputHandler()
 		if (events.type == SDL_QUIT) {
 			running = false;
 		}
+		else if (events.type == SDL_KEYDOWN) {
+	
+			SDL_Rect stretchRect;
+			stretchRect.x = 0;
+			stretchRect.y = 0;
+			stretchRect.w = gScreenSurface->w;
+			stretchRect.h = 100;
+			SDL_BlitScaled(gTexture, NULL, gScreenSurface, &stretchRect);
+		}
+		SDL_UpdateWindowSurface(gWindow);
 	}
 }

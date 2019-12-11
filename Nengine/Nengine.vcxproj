@@ -70,8 +70,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Users\Student\source\repos\Nengine\SDL2\include\SDL2;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Student\source\repos\Nengine\SDL2\lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Student\Documents\Nongine\SDL2\include\SDL2;C:\Users\Student\source\repos\Nengine\SDL2\include\SDL2;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Student\Documents\Nongine\SDL2\lib\x86;C:\Users\Student\source\repos\Nengine\SDL2\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -122,10 +122,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Input.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Nongine.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Input.h" />
     <ClInclude Include="Nongine.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

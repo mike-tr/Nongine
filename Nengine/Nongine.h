@@ -2,21 +2,24 @@
 #include <SDL.h>
 #include <string>
 
+#include "Input.h"
+
 using namespace std;
 
 class Nongine
 {
 public:
-	Nongine(int width, int height,char *title);
+	Nongine(int width, int height, string title);
 	~Nongine();
 
-	bool init(int width, int height, char* title);
-	bool loadImage(string pathName);
+	bool init(int width, int height, string title);
+	SDL_Surface* loadImage(string pathName);
 	void loop();
 
-	SDL_Window* gWindows;
+	Input *input;
+	SDL_Window* gWindow;
 	SDL_Surface* gScreenSurface;
-	SDL_Surface* gLoadSurface;
+	SDL_Surface* gTexture;
 	bool running;
 
 private:
