@@ -7,14 +7,20 @@ Nongine::Nongine(int width, int height, string title)
 		SDL_Delay(10000);
 		return;
 	}
-	gTexture = loadImage("textures/circle.bmp");
+	gTexture = loadTexture("textures/blob.png");
 }
 
 Nongine::~Nongine()
 {
-	SDL_FreeSurface(gTexture);
+	//SDL_FreeSurface(gTexture);
+	SDL_DestroyTexture(gTexture);
 	gTexture = NULL;
+
+	SDL_DestroyRenderer(gRenderer);
 	SDL_DestroyWindow(gWindow);
+	gRenderer = NULL;
+	gWindow = NULL;
+	IMG_Quit();
 	SDL_Quit();
 }
 
@@ -22,7 +28,6 @@ bool Nongine::init(int width, int height, string title)
 {
 	bool success = true;
 	gWindow = NULL;
-	gScreenSurface = NULL;
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
 		printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
@@ -40,41 +45,46 @@ bool Nongine::init(int width, int height, string title)
 		}
 		else
 		{
-			int imgFlags = IMG_INIT_PNG;
-			if (!(IMG_Init(imgFlags) & imgFlags))
-			{
-				printf("SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError());
+			gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED);
+			if (gRenderer == NULL) {
+				printf("Renderer could not be created! SDL Error: %s\n", SDL_GetError());
 				success = false;
-				SDL_Delay(5000);
 			}
-			else
-			{
-				//Get window surface
-				gScreenSurface = SDL_GetWindowSurface(gWindow);
+			else {
+				SDL_SetRenderDrawColor(gRenderer, 0x00, 0x00, 0x00, 0xFF);
+
+				int imgFlags = IMG_INIT_PNG;
+				if (!(IMG_Init(imgFlags) & imgFlags))
+				{
+					printf("SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError());
+					success = false;
+				}
 			}
 		}
 	}
 	return success;
 }
 
-SDL_Surface* Nongine::loadImage(string pathName)
+SDL_Texture* Nongine::loadTexture(string path)
 {
-	SDL_Surface *optimized = NULL;
-	SDL_Surface *gLoadSurface = IMG_Load(pathName.c_str());
-	if (gLoadSurface == NULL)
+	SDL_Texture *texture = NULL;
+
+	SDL_Surface *loadSurface = IMG_Load(path.c_str());
+	if (loadSurface == NULL)
 	{
-		printf("Unable to load image %s! SDL Error: %s\n", pathName.c_str(), SDL_GetError());
+		printf("Unable to load image %s! SDL_image Error: %s\n", path.c_str(), IMG_GetError());
 		return NULL;
 	}
 	else {
-		optimized = SDL_ConvertSurface(gLoadSurface, gScreenSurface->format, 0);
-		if (optimized == NULL) {
-			printf("Unable to optimize image %s! SDL Error: %s\n", pathName.c_str(), SDL_GetError());
+		texture = SDL_CreateTextureFromSurface(gRenderer, loadSurface);
+		if (texture == NULL) {
+			printf("Unable to create texture from %s! SDL Error: %s\n", path.c_str(), SDL_GetError());
 			return NULL;
 		}
-		SDL_FreeSurface(gLoadSurface);
+
+		SDL_FreeSurface(loadSurface);
 	}
-	return optimized;
+	return texture;
 }
 
 void Nongine::loop()
@@ -87,6 +97,7 @@ void Nongine::loop()
 void Nongine::inputHandler()
 {
 	while (SDL_PollEvent(&events) != 0) {
+		
 		if (events.type == SDL_QUIT) {
 			running = false;
 		}
@@ -95,10 +106,12 @@ void Nongine::inputHandler()
 			SDL_Rect stretchRect;
 			stretchRect.x = 0;
 			stretchRect.y = 0;
-			stretchRect.w = gScreenSurface->w;
+			stretchRect.w = 100;
 			stretchRect.h = 100;
-			SDL_BlitScaled(gTexture, NULL, gScreenSurface, &stretchRect);
+			
 		}
-		SDL_UpdateWindowSurface(gWindow);
+		SDL_RenderClear(gRenderer);
+		SDL_RenderCopy(gRenderer, gTexture, NULL, NULL);
+		SDL_RenderPresent(gRenderer);
 	}
 }

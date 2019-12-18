@@ -14,13 +14,13 @@ public:
 	~Nongine();
 
 	bool init(int width, int height, string title);
-	SDL_Surface* loadImage(string pathName);
+	SDL_Texture* loadTexture(string pathName);
 	void loop();
 
 	Input *input;
 	SDL_Window* gWindow;
-	SDL_Surface* gScreenSurface;
-	SDL_Surface* gTexture;
+	SDL_Renderer* gRenderer;
+	SDL_Texture* gTexture;
 	bool running;
 
 private:
